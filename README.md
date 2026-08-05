@@ -1,32 +1,38 @@
-# atc-ci
+# ATC-CI — Continuous Integration
 
-CI/CD-Pipeline-Konfiguration für das gesamte A-TownChain-Ökosystem.
+CI/CD-Pipeline für A-TownChain OS — Build, Test, Deploy über alle 70 Repos.
 
-## Features (geplant)
-- GitHub Actions Workflows für alle Repos
-- Rust Test-Matrix (stable/nightly, x86_64-unknown-none/uefi)
-- Python Test-Runner
-- TypeScript Build & Lint
-- Cross-Compilation (UEFI, no_std, std)
-- Release-Automation (Tags, Changelogs)
-- Kernel QEMU-Test-Harness
-- Wiki-Sync-Validation
-- Multi-Repo-Orchestrierung
-
-## Struktur
+## Pipeline
 ```
-.github/workflows/
-  kernel-test.yml      # atc-shivacore (cargo test, QEMU)
-  kernel-build.yml     # atc-shivacore (x86_64-unknown-none)
-  bootloader-build.yml # atc-bootloader (x86_64-unknown-uefi)
-  python-test.yml      # atc-backend, atc-gateway, etc.
-  frontend-build.yml   # atc-frontend, atc-explorer, atc-ide
-  wiki-sync.yml        # Wiki-Sync-Validation
-  release.yml          # Tag-based Releases
+┌──────────┐   ┌──────────┐   ┌──────────┐   ┌──────────┐
+│  Push/PR │──→│  Build   │──→│  Test    │──→│  Deploy  │
+└──────────┘   └──────────┘   └──────────┘   └──────────┘
+                   │              │              │
+                   ▼              ▼              ▼
+              ┌────────┐    ┌────────┐    ┌──────────┐
+              │ Lint   │    │ Unit   │    │ Staging  │
+              │ Format │    │ E2E    │    │ Mainnet  │
+              │ Type   │    │ Coverage│   │ Testnet  │
+              └────────┘    └────────┘    └──────────┘
 ```
 
-## Status
-- Initial: Repo erstellt 05.08.2026
+## Workflows
+| Workflow | Trigger | Description |
+|----------|---------|-------------|
+| `build.yml` | push/PR | Build all modules |
+| `test.yml` | push/PR | Run unit + integration tests |
+| `lint.yml` | push/PR | Code formatting + type checks |
+| `release.yml` | tag | Create release artifacts |
+| `deploy-testnet.yml` | main push | Deploy to Testnet |
+| `nightly.yml` | schedule | Full audit + nightly build |
 
----
-Copyright © Michael Wroblewski / A-TownChain-Okosystems. All Rights Reserved.
+## Matrix
+- **OS:** Ubuntu 22.04, macOS 14, Windows 11
+- **Rust:** stable, beta, nightly
+- **Python:** 3.11, 3.12, 3.13
+- **Node:** 20, 22
+
+## Verwandte Repos
+- Alle 70 Repos nutzen diese CI-Konfiguration
+
+[agent: aurora-base44-superagent-6a2756186106d6f0fbb105b5]
